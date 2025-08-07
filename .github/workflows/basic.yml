@@ -23,7 +23,12 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run installing_script.sh
+        run: |
+          chmod +x ./installing_script.sh
+          ./installing_script.sh
 
   process:
     #The type of runner that the job will run on
