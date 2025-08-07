@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 set -o noclobber  # Avoid overlay files (echo "hi" > foo)
 #Tempoorary commented for testing al elements in the library
 #set -o errexit     Used to exit upon error, avoiding cascading errors
@@ -33,9 +34,15 @@ for val in "${apps_to_install[@]}"; do
         echo "✅ $val is installed" >&2
     else
         echo "😤 $val is not installed, 🚀 installing..." >&2
-        if ! sudo apt install -y -qq "$val", then
-            echo "⚠️ Failed to install $val, continuing..." >&2
-        fi
+            if [ $val == fdfind]; then
+                val="fd-find"
+            fi
+            if [ $val == batcat];then
+                val="bat"
+            fi
+            if ! sudo apt install -y -qq "$val"; then
+                echo "⚠️ Failed to install $val, continuing..." >&2
+            fi
     fi    
 done
 
@@ -55,6 +62,3 @@ if [ ! -f ~/.local/bin/fd ] || [ ! -f ~/.local/bin/bat ]; then
     sudo ln -s $(which batcat) ~/.local/bin/bat
     echo "💪 Symlinks created successfully."
 fi
-
-
-
