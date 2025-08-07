@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -o noclobber  # Avoid overlay files (echo "hi" > foo)
-set -o errexit    # Used to exit upon error, avoiding cascading errors
+#Tempoorary commented for testing al elements in the library
+#set -o errexit     Used to exit upon error, avoiding cascading errors
 set -o pipefail   # Unveils hidden failures
 set -o nounset    # Exposes unset variables
 
@@ -32,8 +33,10 @@ for val in "${apps_to_install[@]}"; do
         echo "✅ $val is installed" >&2
     else
         echo "😤 $val is not installed, 🚀 installing..." >&2
-        sudo apt install -y -qq "$val"
-    fi
+        if ! sudo apt install -y -qq "$val", then
+            echo "⚠️ Failed to install $val, continuing..." >&2
+        fi
+    fi    
 done
 
 ## Autoremove unused packages
