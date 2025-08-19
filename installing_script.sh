@@ -34,10 +34,10 @@ for val in "${apps_to_install[@]}"; do
         echo "✅ $val is installed" >&2
     else
         echo "😤 $val is not installed, 🚀 installing..." >&2
-            if [ $val == fdfind]; then
+            if [ $val == fdfind ]; then
                 val="fd-find"
             fi
-            if [ $val == batcat];then
+            if [ $val == batcat ];then
                 val="bat"
             fi
             if ! sudo apt install -y -qq "$val"; then
