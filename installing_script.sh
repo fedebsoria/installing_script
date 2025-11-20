@@ -75,7 +75,7 @@ echo "🛠️ making fish the default interpreter"
 chsh -s /usr/bin/fish
 
 # Create aliases for bat y fd-fin
-echo "🛠️ Creating alias for fd, bat, r "
+echo "🛠️ Creating alias for fd, bat, rg "
 create_alias_fish "batcat" "bat"
 create_alias_fish "fd-find" "fd"
 create_alias_fish "ripgrep" "rg"

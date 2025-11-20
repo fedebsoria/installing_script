@@ -1,0 +1,44 @@
+name: Script CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  run-installing-script:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show runner info
+        run: |
+          uname -a
+          lsb_release -a || true
+          echo "Shell: $SHELL"
+
+      - name: Ensure script has LF endings
+        run: |
+          if file installing_script.sh | grep -q CRLF; then
+            echo "Script has CRLF, converting to LF";
+            sed -i 's/\r$//' installing_script.sh;
+          fi
+
+      - name: Make script executable
+        run: chmod +x installing_script.sh
+
+      - name: Run install script with sudo
+        shell: bash
+        run: sudo ./installing_script.sh
+
+      - name: Validate installed commands
+        run: |
+          for cmd in fish jq bat rg htop tmux git; do
+            command -v "$cmd" || echo "Missing $cmd";
+          done
