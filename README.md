@@ -32,6 +32,6 @@ This repository contains a Bash script that installs a curated set of powerful c
 To install all tools, simply run:
 
 ```bash
-installing_script.sh
-
-
+sudo chmod +x installing_script.sh
+./installing_script.sh
+```
