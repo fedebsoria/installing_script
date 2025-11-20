@@ -1,0 +1,7 @@
+# Enforce LF line endings in this repository
+# All text files will use LF
+* text eol=lf
+
+# You can be explicit for certain types if desired
+*.sh text eol=lf
+*.md text eol=lf
