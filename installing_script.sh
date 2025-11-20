@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+VERSION="v0.1"
+
+
 set -o noclobber  # Avoid overlay files (echo "hi" > foo)
 #Tempoorary commented for testing al elements in the library
 #set -o errexit     Used to exit upon error, avoiding cascading errors
