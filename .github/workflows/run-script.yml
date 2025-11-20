@@ -37,8 +37,26 @@ jobs:
         shell: bash
         run: sudo ./installing_script.sh
 
-      - name: Validate installed commands
+      - name: Validate inside fish (aliases + binaries)
         run: |
-          for cmd in fish jq bat rg htop tmux git; do
-            command -v "$cmd" || echo "Missing $cmd";
-          done
+          echo "Entering fish to validate aliases and installed programs..."
+          fish -c '
+            echo "Fish version:"; fish --version;
+            set cmds fish jq batcat fd-find rg htop tmux git
+            for c in $cmds
+              if command -v $c >/dev/null
+                echo "Found $c -> (command -v $c)"
+              else
+                echo "Missing $c"
+              end
+            end
+            echo "Checking alias functions (bat, fd, rg)";
+            for a in bat fd rg
+              if functions -q $a
+                echo "Alias function '$a' exists";
+                $a --help >/dev/null ^/dev/null; or true
+              else
+                echo "Alias function '$a' MISSING";
+              end
+            end
+          '

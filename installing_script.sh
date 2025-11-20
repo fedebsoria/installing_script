@@ -72,11 +72,16 @@ sudo apt autoremove -y -qq
 
 # Make Fish default interpreter
 echo "🛠️ making fish the default interpreter"
-chsh -s /usr/bin/fish
+if [ -n "${SUDO_USER-}" ]; then
+    # Change shell for the invoking (non-root) user when run under sudo
+    chsh -s /usr/bin/fish "$SUDO_USER" || echo "(Warning) Could not change shell for $SUDO_USER"
+else
+    chsh -s /usr/bin/fish || echo "(Warning) Could not change shell for current user"
+fi
 
 # Create aliases for bat y fd-fin
 echo "🛠️ Creating alias for fd, bat, rg "
 create_alias_fish "batcat" "bat"
 create_alias_fish "fd-find" "fd"
 create_alias_fish "ripgrep" "rg"
-echo "💪 Alises created successfully."
+echo "💪 Aliases created successfully inside fish (saved with funcsave)."
