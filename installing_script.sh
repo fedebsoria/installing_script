@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="v0.1"
+VERSION="v0.2"
 
 
 set -o noclobber  # Avoid overlay files (echo "hi" > foo)
@@ -10,58 +10,73 @@ set -o pipefail   # Unveils hidden failures
 set -o nounset    # Exposes unset variables
 
 apps_to_install=(
-    "jq"
-    "eza"
-    "batcat"
-    "rg"
-    "htop"
-    "alacritty"
     "fish"
+    "jq"
+    "bat"
+    "ripgrep"
+    "htop"
     "fd-find"
     "tmux"
     "git"
 )
 
+# Function to see if the app is install, if not install it.
+if_doesnt_exist_install() {
+    local programa="$1"
+
+    # Security check to see if there's an argument
+    if [ -z "$programa" ]; then
+        # Send error to "stderr"
+        echo "Error: No has especificado un programa." >&2
+        return 1
+    fi
+
+    # Instalation check
+    if ! command -v "$programa" &> /dev/null
+    then
+        echo "The program '$programa' isn't installed. Installing..."
+        sudo apt install "$programa" -y -qq
+        echo "'$programa' Installed!"
+    else
+        echo "..."
+    fi
+}
+
+## Create functions for permanents alias
+create_alias_fish() {
+    local program_to_alias="$1"
+    local alias="$2"
+
+    if [ -z "$program_to_alias" ] || [ -z "$alias" ]; then
+        echo "Error: missing arguments." >&2
+        return 1
+    fi
+
+    echo "Creating alias '$alias' for '$program_to_alias' in Fish..."
+    fish -c "function $alias; $program_to_alias \$argv; end; funcsave $alias"
+}
+
+####### START INSTALLING #######
 echo "🚀 Starting installation of required packages..."
 sudo apt update -y -qq
 
-### Checks if the commands and apps are installed
-### if not, installs them using apt:
+# Calls installation function
 
 for val in "${apps_to_install[@]}"; do
-    if [ $val == fd-find ]; then
-        val="fdfind"  # fd-find package command is fdfind
-    fi
-
-    if  [ -x "$(command -v $val)" ]; then
-        echo "✅ $val is installed" >&2
-    else
-        echo "😤 $val is not installed, 🚀 installing..." >&2
-            if [ $val == fdfind ]; then
-                val="fd-find"
-            fi
-            if [ $val == batcat ];then
-                val="bat"
-            fi
-            if ! sudo apt install -y -qq "$val"; then
-                echo "⚠️ Failed to install $val, continuing..." >&2
-            fi
-    fi    
+    if_doesnt_exist_install $val
 done
 
-## Autoremove unused packages
+# Autoremove unused packages
 echo "🧹 Cleaning up unused packages..."
 sudo apt autoremove -y -qq
 
-##Creates a symlinks
-if [ ! -f ~/.local/bin/fd ] || [ ! -f ~/.local/bin/bat ]; then
-    echo "🛠️ Creating symlinks for fd and bat "
-    if [ ! -d ~/.local/bin ]; then
-    mkdir -p ~/.local/bin
-    elif [ -d ~/.local/bin ]; then
-        echo "Directory ~/.local/bin already exists, skipping creation."
-    fi
-    sudo ln -s $(which fdfind) ~/.local/bin/fd
-    sudo ln -s $(which batcat) ~/.local/bin/bat
-    echo "💪 Symlinks created successfully."
-fi
+# Make Fish default interpreter
+echo "🛠️ making fish the default interpreter"
+chsh -s /usr/bin/fish
+
+# Create aliases for bat y fd-fin
+echo "🛠️ Creating alias for fd, bat, r "
+create_alias_fish "batcat" "bat"
+create_alias_fish "fd-find" "fd"
+create_alias_fish "ripgrep" "rg"
+echo "💪 Alises created successfully."
