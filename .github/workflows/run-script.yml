@@ -42,37 +42,26 @@ jobs:
           echo "Entering fish to validate aliases and installed programs..."
           fish -c "
             echo 'Fish version:'; fish --version
-            echo 'Autoload path:'; echo $fish_function_path
-            set cmds fish jq batcat fd-find rg htop tmux git
-            for c in $cmds
-              if command -v $c >/dev/null
-                echo 'Found ' $c ' -> ' (command -v $c)
+            # Create sample files in HOME
+            for n in 1 2 3
+              echo 'TESTING FUNCTIONS' > $HOME/sample$n.txt
+            end
+            set funcs bat fd rg
+            echo 'Testing alias functions:'
+            for f in $funcs
+              if functions -q $f
+                echo 'Function ' $f ' exists; invoking --help first line:'
+                $f --help | head -n 1 || true
               else
-                echo 'Missing ' $c
+                echo 'Function ' $f ' MISSING'
               end
             end
-            echo 'Listing saved function files (bat fd rg):'
-            if test -d $HOME/.config/fish/functions
-              ls -1 $HOME/.config/fish/functions | grep -E '^(bat|fd|rg)\.fish$' || true
-            else
-              echo 'No functions directory found'
-            end
-            echo 'Validating alias functions provided by install script...'
-            for f in bat fd rg
-              if functions -q $f
-                echo 'Function ' $f ' already loaded'
-              else if test -f $HOME/.config/fish/functions/$f.fish
-                source $HOME/.config/fish/functions/$f.fish
-                if functions -q $f
-                  echo 'Function ' $f ' loaded after source'
-                else
-                  echo 'Function ' $f ' could not be loaded'
-                end
-              else
-                echo 'Function file for ' $f ' missing'
-              end
-              if functions -q $f
-                $f --help >/dev/null 2>/dev/null; or true
+            echo 'Sample files created:'; ls -1 $HOME/sample*.txt
+            if functions -q bat
+              echo 'Displaying sample files via bat:'
+              for n in 1 2 3
+                echo '--- sample'$n'.txt ---'
+                bat $HOME/sample$n.txt || cat $HOME/sample$n.txt
               end
             end
           "
