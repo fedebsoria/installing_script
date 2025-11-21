@@ -81,7 +81,14 @@ fi
 
 # Create aliases for bat y fd-fin
 echo "🛠️ Creating alias for fd, bat, rg "
-create_alias_fish "batcat" "bat"
-create_alias_fish "fd-find" "fd"
-create_alias_fish "ripgrep" "rg"
-echo "💪 Aliases created successfully inside fish (saved with funcsave)."
+if [ -n "${SUDO_USER-}" ]; then
+    # Create functions in invoking user's fish config to ensure availability in their shell
+    sudo -u "$SUDO_USER" fish -c 'function bat; batcat $argv; end; funcsave bat'
+    sudo -u "$SUDO_USER" fish -c 'function fd; fd-find $argv; end; funcsave fd'
+    sudo -u "$SUDO_USER" fish -c 'function rg; ripgrep $argv; end; funcsave rg'
+else
+    create_alias_fish "batcat" "bat"
+    create_alias_fish "fd-find" "fd"
+    create_alias_fish "ripgrep" "rg"
+fi
+echo "💪 Aliases created successfully (persisted with funcsave)."

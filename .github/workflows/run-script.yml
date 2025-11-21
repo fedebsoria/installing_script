@@ -40,35 +40,39 @@ jobs:
       - name: Validate inside fish (aliases + binaries)
         run: |
           echo "Entering fish to validate aliases and installed programs..."
-          fish -c '
-            echo "Fish version:"; fish --version
-            echo "Autoload path:"; echo $fish_function_path
+          fish -c "
+            echo 'Fish version:'; fish --version
+            echo 'Autoload path:'; echo $fish_function_path
             set cmds fish jq batcat fd-find rg htop tmux git
             for c in $cmds
               if command -v $c >/dev/null
-                echo "Found $c -> "(command -v $c)
+                echo 'Found ' $c ' -> ' (command -v $c)
               else
-                echo "Missing $c"
+                echo 'Missing ' $c
               end
             end
-            echo "Listing saved function files (bat fd rg):"
-            ls -1 $HOME/.config/fish/functions | grep -E '^(bat|fd|rg)\.fish$' || true
-            echo "Validating alias functions provided by install script..."
+            echo 'Listing saved function files (bat fd rg):'
+            if test -d $HOME/.config/fish/functions
+              ls -1 $HOME/.config/fish/functions | grep -E '^(bat|fd|rg)\.fish$' || true
+            else
+              echo 'No functions directory found'
+            end
+            echo 'Validating alias functions provided by install script...'
             for f in bat fd rg
               if functions -q $f
-                echo "Function '$f' already loaded"
+                echo 'Function ' $f ' already loaded'
               else if test -f $HOME/.config/fish/functions/$f.fish
                 source $HOME/.config/fish/functions/$f.fish
                 if functions -q $f
-                  echo "Function '$f' loaded after source"
+                  echo 'Function ' $f ' loaded after source'
                 else
-                  echo "Function '$f' could not be loaded"
+                  echo 'Function ' $f ' could not be loaded'
                 end
               else
-                echo "Function file for '$f' missing"
+                echo 'Function file for ' $f ' missing'
               end
               if functions -q $f
                 $f --help >/dev/null 2>/dev/null; or true
               end
             end
-          '
+          "
